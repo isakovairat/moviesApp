@@ -1,13 +1,29 @@
+@import '~antd/dist/antd.css';
+@import './components/MovieCard/MovieCard.css';
+@import './components/App/App.css';
+
+html,
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+body {
+    font-family: 'Inter', sans-serif;
+    background: #E5E5E5;
+}
+
+.spinner {
+    margin: 50vh auto 0;
+}
+
+.page {
+    background: #fff;
+    display: flex;
+    flex-wrap: wrap;
+    width: 1010px;
+    height: 100vh;
+    margin: 0 auto;
+    padding-bottom: 32px;
 }
