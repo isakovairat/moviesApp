@@ -7,7 +7,7 @@ import trimOverview from '../../services/trimOverview';
 const MovieCard = ({ title, overview, releaseDate, poster }) => {
   return (
     <Card hoverable className="card">
-      <img src={poster} alt="" className="card__img" />
+      <img src={poster} alt="Movie poster" className="card__img" />
       <div className="info">
         <h3 className="info__title">{title}</h3>
         <span className="info__date">{format(new Date(...releaseDate.split('-').map(Number)), 'MMMM d, yyyy')}</span>

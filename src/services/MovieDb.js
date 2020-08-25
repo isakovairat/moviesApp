@@ -3,7 +3,7 @@ export default class MovieDb {
 
   _apiBase = 'https://api.themoviedb.org/3/search/movie';
 
-  async searchMoviesByName(page, name = 'return') {
+  async searchMoviesByPageAndName(page, name = 'return') {
     // eslint-disable-next-line no-underscore-dangle
     const url = `${this._apiBase}${this._apiKey}&language=en-US&query=${name}&page=${page}&include_adult=false`;
     const response = await fetch(url);
@@ -13,11 +13,7 @@ export default class MovieDb {
     }
 
     const res = await response.json();
-    return res;
-  }
-
-  async showMoviesPage(page = 1) {
-    const res = await this.searchMoviesByName(page);
-    return res.results;
+    console.log(res);
+    return { movies: res.results, totalPages: res.total_pages };
   }
 }

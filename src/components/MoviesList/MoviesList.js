@@ -1,75 +1,143 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Spin } from 'antd';
-
+import { Input, Spin, Pagination, Result } from 'antd';
+import { debounce } from 'lodash';
+import clsx from 'clsx';
 import MovieDb from '../../services/MovieDb';
-import ErrorIndicator from '../ErrorIndicator/ErrorIndicator';
 import MovieCard from '../MovieCard/MovieCard';
 
-import './MoviesList.css';
-
 export default class MoviesList extends Component {
+  static defaultProps = {
+    onError: () => {},
+  };
+
+  static propTypes = {
+    onError: PropTypes.func,
+  };
+
   movieDb = new MovieDb();
 
   state = {
+    inputQuery: 'return',
+    currentPage: 1,
     movies: [],
-    loading: true,
-    error: false,
+    isLoading: true,
+    isError: false,
+    totalPages: null,
   };
 
   componentDidMount() {
     this.updateMovies();
   }
 
-  onMoviesLoaded = (movies) => {
+  // eslint-disable-next-line no-unused-vars
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { inputQuery } = this.state;
+    if (prevState.inputQuery !== inputQuery) {
+      this.updateMovies();
+    }
+  }
+
+  onMoviesLoaded = ({ movies, totalPages }) => {
     this.setState({
       movies,
-      loading: false,
-      error: false,
+      isLoading: false,
+      isError: false,
+      totalPages,
     });
   };
 
   onError = () => {
+    const { onError } = this.props;
+
     this.setState({
-      error: true,
-      loading: false,
+      isError: true,
+      isLoading: false,
+    });
+    onError();
+  };
+
+  updateMovies = (pageNumber = 1) => {
+    const { inputQuery } = this.state;
+    this.movieDb.searchMoviesByPageAndName(pageNumber, inputQuery).then(this.onMoviesLoaded).catch(this.onError);
+    this.setState({
+      currentPage: pageNumber,
+      isLoading: false,
     });
   };
 
-  updateMovies = () => {
-    this.movieDb.showMoviesPage().then(this.onMoviesLoaded).catch(this.onError);
+  handleInputChange = (event) => {
+    this.setState({
+      inputQuery: event.target.value.length > 0 ? event.target.value : 'return',
+      isLoading: true,
+    });
+
+    debounce(() => {
+      this.updateMovies();
+    }, 1000)();
+  };
+
+  handlePaginationChange = (pageNumber) => {
+    this.updateMovies(pageNumber);
+    this.setState({ isLoading: true });
   };
 
   render() {
-    const { movies, loading, error } = this.state;
-    const hasData = !(loading || error);
+    const { movies, isLoading, isError, totalPages, currentPage } = this.state;
 
-    const errorMessage = error ? <ErrorIndicator /> : null;
-    const spinner = loading ? <Spin className="spinner" size="large" /> : null;
-    const content = hasData ? <MoviesView movies={movies} /> : null;
+    const noResultFound = totalPages === 0 ? <NoResultFound /> : null;
+    const spinner = isLoading ? <Spin className="spinner" size="large" /> : null;
+    const content = !isLoading ? <MoviesView movies={movies} /> : null;
+    const pagination =
+      !isError && !isLoading ? (
+        <Pagination
+          current={currentPage}
+          size="small"
+          total={totalPages}
+          className={clsx({ pagination: true, hidden: isError })}
+          hideOnSinglePage
+          onChange={this.handlePaginationChange}
+        />
+      ) : null;
 
     return (
-      <section className="movie-list">
-        {errorMessage}
+      <section className="movies-list">
+        <Input
+          size="middle"
+          placeholder="Type to search..."
+          className={clsx({ input: true, hidden: isError })}
+          onChange={this.handleInputChange}
+        />
+        {noResultFound}
         {spinner}
         {content}
+        {pagination}
       </section>
     );
   }
 }
 
 const MoviesView = ({ movies }) => {
-  return movies.map((movie) => {
-    return (
-      <MovieCard
-        key={movie.id}
-        title={movie.title}
-        overview={movie.overview}
-        releaseDate={movie.release_date}
-        poster={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-      />
-    );
-  });
+  if (movies.length > 1) {
+    return movies.map((movie) => {
+      const posterPath =
+        movie.poster_path === null
+          ? 'https://picsum.photos/id/392/200/'
+          : `https://image.tmdb.org/t/p/w200${movie.poster_path}`;
+
+      return (
+        <MovieCard
+          key={movie.id}
+          title={movie.title}
+          overview={movie.overview}
+          releaseDate={movie.release_date}
+          poster={posterPath}
+        />
+      );
+    });
+  }
+
+  return null;
 };
 
 MoviesView.defaultProps = {
@@ -79,4 +147,8 @@ MoviesView.defaultProps = {
 MoviesView.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   movies: PropTypes.array,
+};
+
+const NoResultFound = () => {
+  return <Result title="Result not found" />;
 };

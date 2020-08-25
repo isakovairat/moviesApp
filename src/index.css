@@ -1,6 +1,8 @@
 @import '~antd/dist/antd.css';
 @import './components/MovieCard/MovieCard.css';
 @import './components/App/App.css';
+@import './components/ErrorIndicator/ErrorIndicator.css';
+@import './components/MoviesList/MoviesList.css';
 
 html,
 body {
@@ -20,10 +22,18 @@ body {
 
 .page {
     background: #fff;
-    display: flex;
-    flex-wrap: wrap;
     width: 1010px;
     height: 100vh;
     margin: 0 auto;
     padding-bottom: 32px;
+    padding-top: 13px;
+}
+
+.hidden {
+    display: none;
+}
+
+.ant-menu {
+    width: 165px;
+    margin: 0 auto 20px;
 }

@@ -1,8 +1,28 @@
-.movie-list {
+.movies-list {
     background: #fff;
     display: flex;
     flex-wrap: wrap;
     width: 1010px;
     margin: 0 auto;
     padding-bottom: 32px;
+}
+
+.pagination {
+    margin: 40px auto 0;
+}
+
+.ant-pagination-item {
+    border-radius: 4px;
+}
+
+.ant-pagination-item-active {
+    background-color: #1890ff;
+}
+
+.ant-pagination-item-active a {
+    color: #fff;
+}
+
+.ant-result {
+    margin: 0 auto;
 }
