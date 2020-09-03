@@ -37,3 +37,8 @@ body {
     width: 165px;
     margin: 0 auto 20px;
 }
+
+.ant-rate {
+    margin-bottom: 15px;
+    font-size: 15px;
+}

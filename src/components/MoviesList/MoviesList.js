@@ -5,14 +5,17 @@ import { debounce } from 'lodash';
 import clsx from 'clsx';
 import MovieDb from '../../services/MovieDb';
 import MovieCard from '../MovieCard/MovieCard';
+import { GenresConsumer } from '../Genres-context';
 
 export default class MoviesList extends Component {
   static defaultProps = {
     onError: () => {},
+    onRateChange: () => {},
   };
 
   static propTypes = {
     onError: PropTypes.func,
+    onRateChange: PropTypes.func,
   };
 
   movieDb = new MovieDb();
@@ -84,10 +87,17 @@ export default class MoviesList extends Component {
 
   render() {
     const { movies, isLoading, isError, totalPages, currentPage } = this.state;
-
+    const { onRateChange } = this.props;
     const noResultFound = totalPages === 0 ? <NoResultFound /> : null;
     const spinner = isLoading ? <Spin className="spinner" size="large" /> : null;
-    const content = !isLoading ? <MoviesView movies={movies} /> : null;
+    const content = !isLoading ? (
+      <GenresConsumer>
+        {(genres) => {
+          return <MoviesView movies={movies} genres={genres} handleRateChange={onRateChange} />;
+        }}
+      </GenresConsumer>
+    ) : null;
+
     const pagination =
       !isError && !isLoading ? (
         <Pagination
@@ -117,9 +127,12 @@ export default class MoviesList extends Component {
   }
 }
 
-const MoviesView = ({ movies }) => {
+const MoviesView = ({ movies, genres, handleRateChange }) => {
   if (movies.length > 1) {
     return movies.map((movie) => {
+      const genresToShow = genres
+        .filter((genre) => genre.id === movie.genre_ids[0] || genre.id === movie.genre_ids[1])
+        .map((genre) => genre.name);
       const posterPath =
         movie.poster_path === null
           ? 'https://picsum.photos/id/392/200/'
@@ -128,10 +141,12 @@ const MoviesView = ({ movies }) => {
       return (
         <MovieCard
           key={movie.id}
-          title={movie.title}
-          overview={movie.overview}
-          releaseDate={movie.release_date}
+          movie={movie}
           poster={posterPath}
+          genres={genresToShow}
+          handleRateChange={(newRate) => {
+            handleRateChange(newRate, movie);
+          }}
         />
       );
     });
@@ -142,11 +157,20 @@ const MoviesView = ({ movies }) => {
 
 MoviesView.defaultProps = {
   movies: [],
+  genres: [],
+  handleRateChange: () => {},
 };
 
 MoviesView.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   movies: PropTypes.array,
+  genres: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+    })
+  ),
+  handleRateChange: PropTypes.func,
 };
 
 const NoResultFound = () => {
