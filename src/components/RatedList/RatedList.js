@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Card, Pagination, Progress, Rate, Tag } from 'antd';
+import { Alert, Card, Pagination, Progress, Rate, Tag } from 'antd';
 import clsx from 'clsx';
 import format from 'date-fns/format';
 import { GenresConsumer } from '../Genres-context';
@@ -44,7 +44,7 @@ export default class RatedList extends Component {
 
   render() {
     const { userRated, currentPage, totalPages } = this.state;
-    // console.log(userRated);
+
     const content = (
       <GenresConsumer>
         {(genres) => {
@@ -111,13 +111,13 @@ const MoviesView = ({ movies, genres }) => {
               </div>
               <p className="info__description">{trimOverview(movie.movie.overview)}</p>
             </div>
-            <Rate allowHalf defaultValue={movie.score} count={10} />
+            <Rate allowHalf value={movie.score} count={10} />
           </div>
         </Card>
       );
     });
   }
-  return <h1>Please rate some movies</h1>;
+  return <Alert className="alert" message="Not so fast!" description="Please rate some movies" type="info" showIcon />;
 };
 
 MoviesView.defaultProps = {

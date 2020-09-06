@@ -8,7 +8,7 @@ const ErrorIndicator = () => {
         message="Error"
         description="Boom! It's a crash. Please reload the page :)"
         type="error"
-        className="errorIndicator"
+        className="alert"
         showIcon
       />
       <div className="crash" />

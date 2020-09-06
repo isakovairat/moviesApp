@@ -1,7 +1,9 @@
+import { debounce } from 'lodash';
+
 export default class MovieDb {
   apiKey = '?api_key=1507742add1f7c3396c6a6d758bc37a0';
 
-  async searchMoviesByPageAndName(page, name = 'return') {
+  async searchMovies(page, name) {
     const url = `https://api.themoviedb.org/3/search/movie${this.apiKey}&language=en-US&query=${name}&page=${page}&include_adult=false`;
     const response = await fetch(url);
 
@@ -25,26 +27,31 @@ export default class MovieDb {
   }
 
   async auth() {
-    const response = await fetch(`https://api.themoviedb.org/3/authentication/guest_session/new${this.apiKey}`);
+    const url = `https://api.themoviedb.org/3/authentication/guest_session/new${this.apiKey}`;
+    const response = await fetch(url);
     if (response.status !== 200) await this.auth();
     const body = await response.json();
     return body.guest_session_id;
   }
 
-  async rate(movieId, score, sessionId) {
-    const request = new Request(
-      `https://api.themoviedb.org/3/movie/${+movieId}/rating${this.apiKey}&guest_session_id=${sessionId}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8',
-        },
-        body: JSON.stringify({
-          value: score,
-        }),
-      }
-    );
+  async rateMovie(movieId, score, sessionId) {
+    const url = `https://api.themoviedb.org/3/movie/${+movieId}/rating${this.apiKey}&guest_session_id=${sessionId}`;
+    const request = new Request(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify({
+        value: score,
+      }),
+    });
 
     await fetch(request);
+  }
+
+  async debouncedSearchMovies(page, name = 'return') {
+    return debounce(() => {
+      this.searchMovies(page, name);
+    }, 500);
   }
 }

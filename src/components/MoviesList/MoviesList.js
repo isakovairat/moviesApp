@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Input, Spin, Pagination, Result } from 'antd';
-import { debounce } from 'lodash';
 import clsx from 'clsx';
+import { debounce } from 'lodash';
 import MovieDb from '../../services/MovieDb';
 import MovieCard from '../MovieCard/MovieCard';
 import { GenresConsumer } from '../Genres-context';
+
+// const { Search } = Input;
 
 export default class MoviesList extends Component {
   static defaultProps = {
@@ -20,14 +22,28 @@ export default class MoviesList extends Component {
 
   movieDb = new MovieDb();
 
-  state = {
-    inputQuery: 'return',
-    currentPage: 1,
-    movies: [],
-    isLoading: true,
-    isError: false,
-    totalPages: null,
-  };
+  updateMovies = debounce((pageNumber = 1) => {
+    const { inputQuery } = this.state;
+    this.movieDb.searchMovies(pageNumber, inputQuery).then(this.onMoviesLoaded).catch(this.onError);
+    this.setState({
+      currentPage: pageNumber,
+    });
+  }, 500);
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      inputQuery: 'return',
+      currentPage: 1,
+      movies: [],
+      isLoading: true,
+      isError: false,
+      totalPages: null,
+    };
+
+    this.updateMovies = this.updateMovies.bind(this);
+  }
 
   componentDidMount() {
     this.updateMovies();
@@ -60,24 +76,12 @@ export default class MoviesList extends Component {
     onError();
   };
 
-  updateMovies = (pageNumber = 1) => {
-    const { inputQuery } = this.state;
-    this.movieDb.searchMoviesByPageAndName(pageNumber, inputQuery).then(this.onMoviesLoaded).catch(this.onError);
-    this.setState({
-      currentPage: pageNumber,
-      isLoading: false,
-    });
-  };
-
   handleInputChange = (event) => {
     this.setState({
       inputQuery: event.target.value.length > 0 ? event.target.value : 'return',
       isLoading: true,
     });
-
-    debounce(() => {
-      this.updateMovies();
-    }, 1000)();
+    this.updateMovies();
   };
 
   handlePaginationChange = (pageNumber) => {

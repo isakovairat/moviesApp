@@ -22,7 +22,8 @@ body {
 
 .page {
     background: #fff;
-    width: 1010px;
+    width: auto;
+    max-width: 1010px;
     height: 100vh;
     margin: 0 auto;
     padding-bottom: 32px;
@@ -42,3 +43,11 @@ body {
     margin-bottom: 15px;
     font-size: 15px;
 }
+
+@media screen and (min-width: 320px) and (max-width: 768px) {
+    body {
+        background: #fff;
+    }
+}
+
+

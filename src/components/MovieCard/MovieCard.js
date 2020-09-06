@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Card, Tag, Rate, Progress } from 'antd';
-import format from 'date-fns/format';
 import trimOverview from '../../services/trimOverview';
 import getVoteAverageColor from '../../services/getVoteAverageColor';
+import checkDate from '../../services/checkDate';
 
 export default class MovieCard extends Component {
   static defaultProps = {
@@ -33,7 +33,7 @@ export default class MovieCard extends Component {
       <Card hoverable className="card">
         <img src={poster} alt="Movie poster" className="card__img" />
         <div className="info">
-          <div>
+          <div className="right">
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <h3 className="info__title">{movie.title}</h3>
               <Progress
@@ -46,9 +46,7 @@ export default class MovieCard extends Component {
                 style={{ marginRight: '5px' }}
               />
             </div>
-            <span className="info__date">
-              {format(new Date(...movie.release_date.split('-').map(Number)), 'MMMM d, yyyy')}
-            </span>
+            <span className="info__date">{checkDate(movie.release_date)}</span>
             <div className="info__genres">
               {genres.map((genre) => (
                 <Tag key={genre}>{genre}</Tag>
@@ -64,7 +62,7 @@ export default class MovieCard extends Component {
               handleRateChange(newScore);
             }}
             allowHalf
-            defaultValue={userScore}
+            value={userScore}
             count={10}
           />
         </div>

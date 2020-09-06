@@ -56,7 +56,7 @@ export default class App extends Component {
 
   async handleRateChange(score, movie) {
     const { sessionId } = this.state;
-    await this.movieDb.rate(movie.id, score, sessionId);
+    await this.movieDb.rateMovie(movie.id, score, sessionId);
     const { userRated } = this.state;
     if (userRated.length > 0 && userRated.find((el) => el.movie.id === movie.id)) {
       const newUserRated = [...userRated];
