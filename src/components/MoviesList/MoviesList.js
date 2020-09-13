@@ -3,11 +3,9 @@ import PropTypes from 'prop-types';
 import { Input, Spin, Pagination, Result } from 'antd';
 import clsx from 'clsx';
 import { debounce } from 'lodash';
-import MovieDb from '../../services/MovieDb';
-import MovieCard from '../MovieCard/MovieCard';
+import MovieDb from '../../utils/MovieDb';
+import MoviesView from '../MoviesView/MoviesView';
 import { GenresConsumer } from '../Genres-context';
-
-// const { Search } = Input;
 
 export default class MoviesList extends Component {
   static defaultProps = {
@@ -40,6 +38,7 @@ export default class MoviesList extends Component {
       isLoading: true,
       isError: false,
       totalPages: null,
+      isRated: false,
     };
 
     this.updateMovies = this.updateMovies.bind(this);
@@ -90,29 +89,28 @@ export default class MoviesList extends Component {
   };
 
   render() {
-    const { movies, isLoading, isError, totalPages, currentPage } = this.state;
+    const { movies, isLoading, isError, totalPages, currentPage, isRated } = this.state;
     const { onRateChange } = this.props;
     const noResultFound = totalPages === 0 ? <NoResultFound /> : null;
     const spinner = isLoading ? <Spin className="spinner" size="large" /> : null;
     const content = !isLoading ? (
       <GenresConsumer>
         {(genres) => {
-          return <MoviesView movies={movies} genres={genres} handleRateChange={onRateChange} />;
+          return <MoviesView isRated={isRated} movies={movies} genres={genres} handleRateChange={onRateChange} />;
         }}
       </GenresConsumer>
     ) : null;
 
-    const pagination =
-      !isError && !isLoading ? (
-        <Pagination
-          current={currentPage}
-          size="small"
-          total={totalPages}
-          className={clsx({ pagination: true, hidden: isError })}
-          hideOnSinglePage
-          onChange={this.handlePaginationChange}
-        />
-      ) : null;
+    const pagination = !isError && !isLoading && (
+      <Pagination
+        current={currentPage}
+        size="small"
+        total={totalPages}
+        className={clsx({ pagination: true, hidden: isError })}
+        hideOnSinglePage
+        onChange={this.handlePaginationChange}
+      />
+    );
 
     return (
       <section className="movies-list">
@@ -130,52 +128,6 @@ export default class MoviesList extends Component {
     );
   }
 }
-
-const MoviesView = ({ movies, genres, handleRateChange }) => {
-  if (movies.length > 1) {
-    return movies.map((movie) => {
-      const genresToShow = genres
-        .filter((genre) => genre.id === movie.genre_ids[0] || genre.id === movie.genre_ids[1])
-        .map((genre) => genre.name);
-      const posterPath =
-        movie.poster_path === null
-          ? 'https://picsum.photos/id/392/200/'
-          : `https://image.tmdb.org/t/p/w200${movie.poster_path}`;
-
-      return (
-        <MovieCard
-          key={movie.id}
-          movie={movie}
-          poster={posterPath}
-          genres={genresToShow}
-          handleRateChange={(newRate) => {
-            handleRateChange(newRate, movie);
-          }}
-        />
-      );
-    });
-  }
-
-  return null;
-};
-
-MoviesView.defaultProps = {
-  movies: [],
-  genres: [],
-  handleRateChange: () => {},
-};
-
-MoviesView.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  movies: PropTypes.array,
-  genres: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number,
-      name: PropTypes.string,
-    })
-  ),
-  handleRateChange: PropTypes.func,
-};
 
 const NoResultFound = () => {
   return <Result title="Result not found" />;

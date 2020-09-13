@@ -1,10 +1,10 @@
-import { debounce } from 'lodash';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export default class MovieDb {
-  apiKey = '?api_key=1507742add1f7c3396c6a6d758bc37a0';
-
   async searchMovies(page, name) {
-    const url = `https://api.themoviedb.org/3/search/movie${this.apiKey}&language=en-US&query=${name}&page=${page}&include_adult=false`;
+    const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.REACT_APP_TMDB_API_KEY}&language=en-US&query=${name}&page=${page}&include_adult=false`;
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -16,7 +16,7 @@ export default class MovieDb {
   }
 
   async getGenres() {
-    const url = `https://api.themoviedb.org/3/genre/movie/list${this.apiKey}&language=en-US`;
+    const url = `https://api.themoviedb.org/3/genre/movie/list?api_key=${process.env.REACT_APP_TMDB_API_KEY}&language=en-US`;
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -27,7 +27,7 @@ export default class MovieDb {
   }
 
   async auth() {
-    const url = `https://api.themoviedb.org/3/authentication/guest_session/new${this.apiKey}`;
+    const url = `https://api.themoviedb.org/3/authentication/guest_session/new?api_key=${process.env.REACT_APP_TMDB_API_KEY}`;
     const response = await fetch(url);
     if (response.status !== 200) await this.auth();
     const body = await response.json();
@@ -35,7 +35,9 @@ export default class MovieDb {
   }
 
   async rateMovie(movieId, score, sessionId) {
-    const url = `https://api.themoviedb.org/3/movie/${+movieId}/rating${this.apiKey}&guest_session_id=${sessionId}`;
+    const url = `https://api.themoviedb.org/3/movie/${+movieId}/rating?api_key=${
+      process.env.REACT_APP_TMDB_API_KEY
+    }&guest_session_id=${sessionId}`;
     const request = new Request(url, {
       method: 'POST',
       headers: {
@@ -47,11 +49,5 @@ export default class MovieDb {
     });
 
     await fetch(request);
-  }
-
-  async debouncedSearchMovies(page, name = 'return') {
-    return debounce(() => {
-      this.searchMovies(page, name);
-    }, 500);
   }
 }

@@ -11,6 +11,7 @@ export default class MovieCard extends Component {
     poster: 'some poster',
     genres: [],
     handleRateChange: () => {},
+    score: 0,
   };
 
   static propTypes = {
@@ -19,18 +20,29 @@ export default class MovieCard extends Component {
     poster: PropTypes.string,
     genres: PropTypes.arrayOf(PropTypes.string),
     handleRateChange: PropTypes.func,
+    score: PropTypes.number,
   };
 
   state = {
-    userScore: 0,
+    // eslint-disable-next-line react/destructuring-assignment
+    userScore: this.props.score,
   };
+
+  // eslint-disable-next-line no-unused-vars
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { score } = this.props;
+    if (prevProps.score !== score) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ userScore: score });
+    }
+  }
 
   render() {
     const { movie, poster, genres, handleRateChange } = this.props;
     const { userScore } = this.state;
 
     return (
-      <Card hoverable className="card">
+      <Card key={movie.id} hoverable className="card">
         <img src={poster} alt="Movie poster" className="card__img" />
         <div className="info">
           <div className="right">
