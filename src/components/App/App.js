@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import MoviesList from '../MoviesList/MoviesList';
 import ErrorIndicator from '../ErrorIndicator/ErrorIndicator';
 import RatedList from '../RatedList/RatedList';
-import MovieDb from '../../utils/MovieDb';
+import MovieDb from '../../services/MovieDb';
 import { GenresProvider } from '../Genres-context';
 
 export default class App extends Component {
@@ -69,6 +69,7 @@ export default class App extends Component {
   }
 
   render() {
+    // console.log('userRated', this.state.userRated);
     const { isError, genres, userRated } = this.state;
     const errorMessage = isError ? <ErrorIndicator /> : null;
     const { TabPane } = Tabs;
@@ -79,7 +80,7 @@ export default class App extends Component {
           {errorMessage}
           <Tabs defaultActiveKey="search" className={clsx({ hidden: isError })} centered>
             <TabPane tab="Search" key="search">
-              <MoviesList onError={this.onError} onRateChange={this.handleRateChange} />
+              <MoviesList userRated={userRated} onError={this.onError} onRateChange={this.handleRateChange} />
             </TabPane>
             <TabPane tab="Rated" key="rated">
               <RatedList userRated={userRated} onRateChange={this.handleRateChange} />

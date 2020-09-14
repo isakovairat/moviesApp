@@ -3,17 +3,20 @@ import PropTypes from 'prop-types';
 import { Input, Spin, Pagination, Result } from 'antd';
 import clsx from 'clsx';
 import { debounce } from 'lodash';
-import MovieDb from '../../utils/MovieDb';
+import MovieDb from '../../services/MovieDb';
 import MoviesView from '../MoviesView/MoviesView';
 import { GenresConsumer } from '../Genres-context';
 
 export default class MoviesList extends Component {
   static defaultProps = {
+    userRated: [],
     onError: () => {},
     onRateChange: () => {},
   };
 
   static propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    userRated: PropTypes.array,
     onError: PropTypes.func,
     onRateChange: PropTypes.func,
   };
@@ -38,7 +41,6 @@ export default class MoviesList extends Component {
       isLoading: true,
       isError: false,
       totalPages: null,
-      isRated: false,
     };
 
     this.updateMovies = this.updateMovies.bind(this);
@@ -51,14 +53,46 @@ export default class MoviesList extends Component {
   // eslint-disable-next-line no-unused-vars
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { inputQuery } = this.state;
+    const { userRated } = this.props;
     if (prevState.inputQuery !== inputQuery) {
       this.updateMovies();
     }
+    if (prevProps.userRated !== userRated) {
+      this.updateScores();
+    }
   }
+
+  updateScores = () => {
+    const { movies } = this.state;
+    const { userRated } = this.props;
+
+    const lol = movies.map((movie) => {
+      let toUpdateMovie = [];
+      if (
+        userRated.find((userRatedMovie) => {
+          if (userRatedMovie.movie.id === movie.movie.id) {
+            toUpdateMovie = userRatedMovie;
+            return true;
+          }
+          return false;
+        })
+      ) {
+        return toUpdateMovie;
+      }
+      return movie;
+    });
+
+    this.setState({ movies: [...lol] });
+  };
 
   onMoviesLoaded = ({ movies, totalPages }) => {
     this.setState({
-      movies,
+      movies: movies.map((movie) => {
+        return {
+          movie,
+          score: 0,
+        };
+      }),
       isLoading: false,
       isError: false,
       totalPages,
@@ -89,14 +123,14 @@ export default class MoviesList extends Component {
   };
 
   render() {
-    const { movies, isLoading, isError, totalPages, currentPage, isRated } = this.state;
+    const { movies, isLoading, isError, totalPages, currentPage } = this.state;
     const { onRateChange } = this.props;
     const noResultFound = totalPages === 0 ? <NoResultFound /> : null;
     const spinner = isLoading ? <Spin className="spinner" size="large" /> : null;
     const content = !isLoading ? (
       <GenresConsumer>
         {(genres) => {
-          return <MoviesView isRated={isRated} movies={movies} genres={genres} handleRateChange={onRateChange} />;
+          return <MoviesView movies={movies} genres={genres} handleRateChange={onRateChange} />;
         }}
       </GenresConsumer>
     ) : null;

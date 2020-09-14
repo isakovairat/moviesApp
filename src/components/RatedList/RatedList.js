@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Pagination, Alert } from 'antd';
+import { Pagination } from 'antd';
 import clsx from 'clsx';
 import { GenresConsumer } from '../Genres-context';
 import MoviesView from '../MoviesView/MoviesView';
@@ -20,13 +20,9 @@ export default class RatedList extends Component {
   constructor(props) {
     super(props);
 
-    const { userRated } = this.props;
-
     this.state = {
       currentPage: 1,
       totalPages: null,
-      userRated,
-      isRated: true,
     };
   }
 
@@ -34,8 +30,7 @@ export default class RatedList extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { userRated } = this.props;
     if (prevProps.userRated !== userRated) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ userRated });
+      this.forceUpdate();
     }
   }
 
@@ -44,13 +39,13 @@ export default class RatedList extends Component {
   };
 
   render() {
-    const { userRated, currentPage, totalPages, isRated } = this.state;
-    const { onRateChange } = this.props;
+    const { currentPage, totalPages } = this.state;
+    const { onRateChange, userRated } = this.props;
 
     const content = (
       <GenresConsumer>
         {(genres) => {
-          return <MoviesView isRated={isRated} movies={userRated} genres={genres} handleRateChange={onRateChange} />;
+          return <MoviesView movies={userRated} genres={genres} handleRateChange={onRateChange} />;
         }}
       </GenresConsumer>
     );
@@ -67,13 +62,10 @@ export default class RatedList extends Component {
     );
 
     return (
-      <>
-        <Alert message="Hey!" description={`You can edit a score only on "Search" tab`} type="info" showIcon closable />
-        <section className="movies-list">
-          {content}
-          {pagination}
-        </section>
-      </>
+      <section className="movies-list">
+        {content}
+        {pagination}
+      </section>
     );
   }
 }

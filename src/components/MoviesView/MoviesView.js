@@ -3,10 +3,10 @@ import React from 'react';
 import { Alert } from 'antd';
 import MovieCard from '../MovieCard';
 
-const MoviesView = ({ movies, genres, handleRateChange, isRated }) => {
+const MoviesView = ({ movies, genres, handleRateChange }) => {
   if (movies.length > 0) {
     return movies.map((movie) => {
-      const movieInfo = isRated ? movie.movie : movie;
+      const movieInfo = movie.movie;
       const genresToShow = genres
         .filter((genre) => genre.id === movieInfo.genre_ids[0] || genre.id === movieInfo.genre_ids[1])
         .map((genre) => genre.name);
@@ -17,7 +17,7 @@ const MoviesView = ({ movies, genres, handleRateChange, isRated }) => {
 
       return (
         <MovieCard
-          score={isRated ? movie.score : 0}
+          score={movie.score}
           key={movieInfo.id}
           movie={movieInfo}
           poster={posterPath}
@@ -37,7 +37,6 @@ MoviesView.defaultProps = {
   movies: [],
   genres: [],
   handleRateChange: () => {},
-  isRated: null,
 };
 
 MoviesView.propTypes = {
@@ -50,7 +49,6 @@ MoviesView.propTypes = {
     })
   ),
   handleRateChange: PropTypes.func,
-  isRated: PropTypes.bool,
 };
 
 export default MoviesView;

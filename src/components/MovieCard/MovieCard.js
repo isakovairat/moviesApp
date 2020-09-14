@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Card, Tag, Rate, Progress } from 'antd';
-import trimOverview from '../../services/trimOverview';
-import getVoteAverageColor from '../../services/getVoteAverageColor';
-import checkDate from '../../services/checkDate';
+import trimOverview from '../../utils/trimOverview';
+import getVoteAverageColor from '../../utils/getVoteAverageColor';
+import checkDate from '../../utils/checkDate';
 
 export default class MovieCard extends Component {
   static defaultProps = {
